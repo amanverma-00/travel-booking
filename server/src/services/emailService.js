@@ -1,0 +1,1 @@
+export const sendOTPEmail = async (email, otp) => { console.log(' OTP for', email, ':', otp); return { success: true, messageId: 'mock-' + Date.now() }; }; export const verifyEmailConfig = async () => true;
