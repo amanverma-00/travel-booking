@@ -337,15 +337,11 @@ npm run test:e2e
 - [ ] Loyalty program
 - [ ] Multi-currency support
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👨‍💻 Author
 
 **Aman Verma**
 - GitHub: [@amanverma-00](https://github.com/amanverma-00)
-- LinkedIn: [Aman Verma](https://linkedin.com/in/amanverma-00)
+- LinkedIn: [Aman Verma](https://www.linkedin.com/in/aman-verma-563937294/)
 
 ## 🙏 Acknowledgments
 
@@ -353,12 +349,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Icons from Heroicons
 - Images from Unsplash
 - Community support from Stack Overflow
-
-## 📞 Support
-
-For support, email: support@wanderlust.com or create an issue on GitHub.
-
----
 
 **⭐ Star this repository if you found it helpful!**
 
