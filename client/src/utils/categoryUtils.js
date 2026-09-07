@@ -150,10 +150,14 @@ export const getCategoryInfo = (categoryId) => {
 export const getFeaturedListings = (listings, perCategory = null) => {
   const allListings = getListingsByCategory(listings);
   
-  return CITY_CATEGORIES.map(category => ({
-    ...category,
-    listings: perCategory ? allListings[category.id].slice(0, perCategory) : allListings[category.id]
-  })).filter(category => category.listings.length > 0);
+  return CITY_CATEGORIES.map(category => {
+    const fullListings = allListings[category.id] || [];
+    return {
+      ...category,
+      totalCount: fullListings.length,
+      listings: perCategory ? fullListings.slice(0, perCategory) : fullListings
+    };
+  }).filter(category => category.listings.length > 0);
 };
 
 // Mock data that matches our city categories

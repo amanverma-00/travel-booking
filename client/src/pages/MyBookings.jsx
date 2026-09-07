@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { CalendarIcon, MapPinIcon, UserIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import { FaCreditCard, FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 
 const MyBookings = () => {
   const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const { user } = useSelector(state => state.auth);
+  useSelector(state => state.auth); // auth state available if needed
 
   useEffect(() => {
     fetchBookings();
@@ -272,8 +273,9 @@ const MyBookings = () => {
                   {booking.listing?.images && booking.listing.images.length > 0 && (
                     <div className="ml-6 flex-shrink-0">
                       <img
-                        src={booking.listing.images[0]}
+                        src={getImageUrl(booking.listing.images[0])}
                         alt={booking.listing.title}
+                        onError={(e) => handleImageError(e)}
                         className="w-32 h-24 object-cover rounded-lg"
                       />
                     </div>

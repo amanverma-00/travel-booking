@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// OTP signup request validation schema
-export const sendSignupOTPSchema = z.object({
+// User registration validation schema
+export const registerSchema = z.object({
   firstName: z
     .string({
       required_error: "First name is required",
@@ -33,65 +33,6 @@ export const sendSignupOTPSchema = z.object({
       required_error: "Password is required",
     })
     .min(6, "Password must be at least 6 characters")
-    .max(128, "Password must be less than 128 characters"),
-});
-
-// OTP verification validation schema
-export const verifyOTPSchema = z.object({
-  emailId: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Please enter a valid email address")
-    .toLowerCase()
-    .trim(),
-    
-  otp: z
-    .string({
-      required_error: "OTP is required",
-    })
-    .min(6, "OTP must be 6 digits")
-    .max(6, "OTP must be 6 digits")
-    .regex(/^\d{6}$/, "OTP must be 6 digits"),
-});
-
-// Resend OTP validation schema
-export const resendOTPSchema = z.object({
-  emailId: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Please enter a valid email address")
-    .toLowerCase()
-    .trim(),
-});
-
-// User registration validation schema (simplified to match frontend)
-export const registerSchema = z.object({
-  firstName: z
-    .string({
-      required_error: "First name is required",
-    })
-    .min(1, "First name is required")
-    .max(50, "First name must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces")
-    .trim(),
-    
-  emailId: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Please enter a valid email address")
-    .min(5, "Email must be at least 5 characters")
-    .max(100, "Email must be less than 100 characters")
-    .toLowerCase()
-    .trim(),
-    
-  password: z
-    .string({
-      required_error: "Password is required",
-    })
-    .min(6, "Password must be at least 6 characters") // Reduced to match frontend
     .max(128, "Password must be less than 128 characters"),
     
   // Optional fields that might be sent by frontend

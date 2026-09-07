@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { FaExpand, FaTimes, FaMapMarkerAlt } from 'react-icons/fa';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 
 // Fix for default markers in Leaflet with React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -110,8 +111,9 @@ const ListingMap = ({ listing }) => {
             <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm">
               <div className="flex items-start space-x-3">
                 <img
-                  src={listing.images?.[0] || 'https://via.placeholder.com/60x60'}
+                  src={getImageUrl(listing.images?.[0])}
                   alt={listing.title}
+                  onError={(e) => handleImageError(e)}
                   className="w-15 h-15 rounded-lg object-cover flex-shrink-0"
                 />
                 <div>

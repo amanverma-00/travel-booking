@@ -13,6 +13,7 @@ import {
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const ManageProperties = () => {
   const { t } = useLanguage();
@@ -157,8 +158,9 @@ const ManageProperties = () => {
               <div className="aspect-w-16 aspect-h-9 bg-gray-200">
                 {property.images && property.images.length > 0 ? (
                   <img
-                    src={property.images[0]}
+                    src={getImageUrl(property.images[0])}
                     alt={property.title}
+                    onError={(e) => handleImageError(e)}
                     className="w-full h-48 object-cover"
                   />
                 ) : (

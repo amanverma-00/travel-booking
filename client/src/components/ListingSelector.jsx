@@ -7,6 +7,7 @@ import {
   CurrencyDollarIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 
 const ListingSelector = ({ onSelect }) => {
   const { user } = useSelector((state) => state.auth);
@@ -123,8 +124,9 @@ const ListingSelector = ({ onSelect }) => {
             <div className="aspect-w-16 aspect-h-10 overflow-hidden rounded-t-lg">
               {listing.images && listing.images.length > 0 ? (
                 <img
-                  src={listing.images[0]}
+                  src={getImageUrl(listing.images[0])}
                   alt={listing.title}
+                  onError={(e) => handleImageError(e)}
                   className="w-full h-48 object-cover"
                 />
               ) : (

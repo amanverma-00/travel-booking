@@ -1,199 +1,13 @@
 import redisClient from "../config/redis.js";
 import User from "../models/user.js";
-import OTP from "../models/otp.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import cloudinary from '../config/cloudinary.js';
-import { sendOTPEmail } from '../services/emailService.js';
-
-// Step 1: Send OTP for registration
-export const sendSignupOTP = async (req, res) => {
-  try {
-    console.log('📧 Received signup OTP request:', req.body);
-    const { firstName, lastName, emailId, password } = req.body;
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ emailId });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with this email"
-      });
-    }
-
-    // Delete any existing OTP for this email and purpose
-    await OTP.deleteMany({ emailId, purpose: 'signup' });
-
-    // Generate new OTP
-    const otp = OTP.generateOTP();
-
-    // Hash the password before storing in temporary data
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Create new OTP record
-    await OTP.create({
-      emailId,
-      otp,
-      purpose: 'signup',
-      userData: {
-        firstName,
-        lastName,
-        password: hashedPassword
-      }
-    });
-
-    // Send OTP email
-    await sendOTPEmail(emailId, otp, 'signup', firstName);
-
-    res.status(200).json({
-      success: true,
-      message: "OTP sent to your email successfully",
-      emailId // Return for frontend reference
-    });
-
-  } catch (err) {
-    console.error('Send signup OTP error:', err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to send OTP",
-      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-    });
-  }
-};
-
-// Step 2: Verify OTP and complete registration
-export const verifySignupOTP = async (req, res) => {
-  try {
-    const { emailId, otp } = req.body;
-
-    // Find the OTP record
-    const otpRecord = await OTP.findOne({ 
-      emailId, 
-      purpose: 'signup',
-      isUsed: false 
-    }).sort({ createdAt: -1 }); // Get the latest OTP
-
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid OTP found for this email"
-      });
-    }
-
-    // Verify OTP
-    try {
-      otpRecord.verifyOTP(otp);
-    } catch (otpError) {
-      return res.status(400).json({
-        success: false,
-        message: otpError.message
-      });
-    }
-
-    // Create the user account
-    const user = await User.create({
-      firstName: otpRecord.userData.firstName,
-      lastName: otpRecord.userData.lastName,
-      emailId: otpRecord.emailId,
-      password: otpRecord.userData.password, // Already hashed
-      role: 'user'
-    });
-
-    // Clean up the OTP record
-    await OTP.deleteOne({ _id: otpRecord._id });
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { _id: user._id, emailId: user.emailId, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    const reply = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      emailId: user.emailId,
-      _id: user._id,
-      role: user.role,
-    };
-
-    res.cookie('token', token, { 
-      maxAge: 60 * 60 * 1000,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production'
-    });
-    
-    res.status(201).json({
-      success: true,
-      user: reply,
-      token: token,
-      message: "Account created successfully"
-    });
-
-  } catch (err) {
-    console.error('Verify signup OTP error:', err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to verify OTP",
-      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-    });
-  }
-};
-
-// Resend OTP for signup
-export const resendSignupOTP = async (req, res) => {
-  try {
-    const { emailId } = req.body;
-
-    // Find the latest OTP record to get user data
-    const otpRecord = await OTP.findOne({ 
-      emailId, 
-      purpose: 'signup'
-    }).sort({ createdAt: -1 });
-
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: "No signup request found for this email"
-      });
-    }
-
-    // Delete existing OTPs
-    await OTP.deleteMany({ emailId, purpose: 'signup' });
-
-    // Generate new OTP
-    const otp = OTP.generateOTP();
-
-    // Create new OTP record with existing user data
-    await OTP.create({
-      emailId,
-      otp,
-      purpose: 'signup',
-      userData: otpRecord.userData
-    });
-
-    // Send new OTP email
-    await sendOTPEmail(emailId, otp, 'signup', otpRecord.userData.firstName);
-
-    res.status(200).json({
-      success: true,
-      message: "New OTP sent to your email"
-    });
-
-  } catch (err) {
-    console.error('Resend signup OTP error:', err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to resend OTP",
-      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-    });
-  }
-};
 
 export const register = async (req, res) => {
   try {
     // Data is already validated by Zod middleware
-    const { firstName, emailId, password } = req.body;
+    const { firstName, lastName, emailId, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ emailId });
@@ -206,6 +20,7 @@ export const register = async (req, res) => {
 
     const user = await User.create({
       firstName,
+      lastName,
       emailId,
       password,
       role: 'user'
@@ -219,6 +34,7 @@ export const register = async (req, res) => {
 
     const reply = {
       firstName: user.firstName,
+      lastName: user.lastName,
       emailId: user.emailId,
       _id: user._id,
       role: user.role,

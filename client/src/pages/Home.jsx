@@ -6,7 +6,7 @@ import ListingsGrid from '../components/ListingsGrid';
 import BookingCard from '../components/BookingCard';
 import Footer from '../components/Footer';
 import { fetchAllListings, getFeaturedListings } from '../utils/categoryUtils';
-import { getFeaturedListingsFromAPI, fetchListingsFromAPI } from '../utils/apiUtils';
+import { getFeaturedListingsFromAPI } from '../utils/apiUtils';
 
 const Home = () => {
   const { t } = useTranslation();
@@ -15,12 +15,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showCategoryView, setShowCategoryView] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
-  const handleFilterChange = (filterId) => {
-    setActiveFilter(filterId);
-    setShowCategoryView(false);
-    setSelectedCategory(null);
-  };
 
   const handleCategoryClick = (categoryType) => {
     setActiveFilter(categoryType);
@@ -118,6 +112,7 @@ const Home = () => {
                 <CategorySection
                   title={category.name}
                   listings={category.listings}
+                  totalCount={category.totalCount}
                   showViewAll={true}
                   onCategoryClick={handleCategoryClick}
                   categoryType={category.type || (category.types && category.types[0]) || category.id}
@@ -143,7 +138,7 @@ const Home = () => {
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  {t('home.categories')}
+                  {t('home.backToCategories')}
                 </button>
                 <h1 className="text-2xl font-bold text-gray-900">
                   {selectedCategory ? `${selectedCategory} Properties` : 'All Properties'}

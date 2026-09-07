@@ -7,6 +7,7 @@ import { MdLocationOn, MdDashboard } from 'react-icons/md';
 import { FiUser, FiMail, FiPhone, FiEdit2, FiSave, FiX } from 'react-icons/fi';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -805,8 +806,9 @@ const Profile = () => {
                           <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                             {review.listing?.images?.[0] && (
                               <img
-                                src={review.listing.images[0]}
+                                src={getImageUrl(review.listing.images[0])}
                                 alt={review.listing.title}
+                                onError={(e) => handleImageError(e)}
                                 className="w-full h-full object-cover"
                               />
                             )}

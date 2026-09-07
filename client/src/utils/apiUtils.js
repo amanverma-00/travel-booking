@@ -121,13 +121,15 @@ export const getFeaturedListingsFromAPI = async (limit = 5) => {
     
     topCities.forEach(([city, cityListings]) => {
       if (cityListings.length > 0 && city !== 'other') {
+        const cityName = cityListings[0]?.location?.city || (city.charAt(0).toUpperCase() + city.slice(1));
         featuredCategories.push({
           id: city.toLowerCase(),
-          name: city.charAt(0).toUpperCase() + city.slice(1),
-          type: city,
+          name: cityName,
+          type: cityName,
           cities: [city], // Add for backward compatibility
-          listings: cityListings.slice(0, Math.min(limit, 6)), // Limit per category
-          description: getCityDescription(city.charAt(0).toUpperCase() + city.slice(1))
+          listings: cityListings.slice(0, Math.min(limit, 6)), // Limit per category for preview
+          totalCount: cityListings.length, // Real total count in database for this area
+          description: getCityDescription(cityName)
         });
       }
     });

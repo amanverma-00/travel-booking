@@ -5,6 +5,7 @@ import ListingCard from './ListingCard';
 const CategorySection = ({ 
   title, 
   listings, 
+  totalCount,
   showViewAll = true,
   maxDisplay = null,
   onCategoryClick,
@@ -12,6 +13,7 @@ const CategorySection = ({
 }) => {
   const { t } = useTranslation();
   const displayListings = maxDisplay ? listings.slice(0, maxDisplay) : listings;
+  const realTotalCount = totalCount !== undefined && totalCount !== null ? totalCount : listings.length;
 
   if (!listings || listings.length === 0) {
     return null;
@@ -45,12 +47,12 @@ const CategorySection = ({
               {t('categories.discover', { category: title.toLowerCase() })}
             </p>
           </div>
-          {showViewAll && listings.length > maxDisplay && (
+          {showViewAll && (
             <button 
               onClick={handleViewAllClick}
               className="hidden lg:flex items-center text-[#ff385c] hover:text-[#e0314f] font-medium text-lg transition-colors duration-200 group"
             >
-              <span>{t('categories.viewAll', { count: listings.length })}</span>
+              <span>{t('categories.viewAll', { count: realTotalCount })}</span>
               <svg 
                 className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" 
                 fill="none" 
@@ -76,13 +78,13 @@ const CategorySection = ({
         </div>
 
         {/* Show more button for mobile and small screens */}
-        {showViewAll && listings.length > maxDisplay && (
+        {showViewAll && (
           <div className="mt-8 text-center lg:hidden">
             <button 
               onClick={handleViewAllClick}
               className="bg-[#ff385c] text-white px-8 py-3 rounded-full hover:bg-[#e0314f] transition-colors duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              {t('categories.viewAllMobile', { count: listings.length, category: title.toLowerCase() })}
+              {t('categories.viewAllMobile', { count: realTotalCount, category: title.toLowerCase() })}
             </button>
           </div>
         )}

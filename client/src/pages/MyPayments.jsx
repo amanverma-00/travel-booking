@@ -8,14 +8,15 @@ import {
   FaEye,
   FaReceipt
 } from 'react-icons/fa';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const MyPayments = () => {
-  const { t } = useLanguage();
+  useTranslation(); // available for future i18n use
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -211,8 +212,9 @@ const MyPayments = () => {
                           <div className="flex items-center">
                             {payment.booking?.listing?.images?.[0] && (
                               <img 
-                                src={payment.booking.listing.images[0]} 
+                                src={getImageUrl(payment.booking.listing.images[0])} 
                                 alt={payment.booking.listing.title}
+                                onError={(e) => handleImageError(e)}
                                 className="w-12 h-12 rounded-lg object-cover mr-4"
                               />
                             )}

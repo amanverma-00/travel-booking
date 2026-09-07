@@ -6,6 +6,7 @@ import { FaUser, FaBars, FaTimes, FaGlobe, FaHeart, FaCalendar, FaCreditCard } f
 import { logout } from '../store/authSlice';
 import toast from 'react-hot-toast';
 import LanguageSelectorNew from './LanguageSelectorNew';
+import { getImageUrl } from '../utils/imageUtils';
 
 const Header = () => {
   const { t } = useTranslation();
@@ -81,10 +82,11 @@ const Header = () => {
                 >
                   <FaBars className="w-3 h-3 text-gray-700" />
                   <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center overflow-hidden">
-                    {user?.profileImage?.url ? (
+                    {user?.profileImage ? (
                       <img 
-                        src={user.profileImage.url} 
+                        src={getImageUrl(user.profileImage, '')} 
                         alt="Profile" 
+                        onError={(e) => { e.target.style.display = 'none'; }}
                         className="w-full h-full object-cover"
                       />
                     ) : (

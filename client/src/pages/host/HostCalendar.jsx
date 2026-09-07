@@ -7,6 +7,7 @@ import CalendarManagement from '../../components/CalendarManagement';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAuthCheck } from '../../hooks/useAuthCheck';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const HostCalendar = () => {
   const { user, isAuthenticated, authChecked, hasRole } = useAuthCheck();
@@ -189,8 +190,9 @@ const HostCalendar = () => {
                       <div className="flex items-start space-x-3">
                         {listing.images && listing.images.length > 0 && (
                           <img
-                            src={listing.images[0]}
+                            src={getImageUrl(listing.images[0])}
                             alt={listing.title}
+                            onError={(e) => handleImageError(e)}
                             className="w-16 h-16 object-cover rounded"
                           />
                         )}
@@ -218,8 +220,9 @@ const HostCalendar = () => {
                 <div className="flex items-start space-x-4">
                   {selectedListing.images && selectedListing.images.length > 0 && (
                     <img
-                      src={selectedListing.images[0]}
+                      src={getImageUrl(selectedListing.images[0])}
                       alt={selectedListing.title}
+                      onError={(e) => handleImageError(e)}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
                   )}

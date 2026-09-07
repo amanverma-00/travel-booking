@@ -3,23 +3,23 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaArrowLeft, FaStar, FaWifi, FaCar, FaSwimmingPool, FaDumbbell, FaConciergeBell, FaSnowflake, FaMapMarkerAlt, FaBed, FaBath, FaUsers, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import { translateContent, needsTranslation } from '../utils/contentTranslator';
 import toast from 'react-hot-toast';
 import { getMockListings } from '../utils/categoryUtils';
 import { fetchListingByIdFromAPI } from '../utils/apiUtils';
 import { addToWishlist, removeFromWishlist } from '../store/wishlistSlice';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Calendar from '../components/Calendar';
 import ListingMap from '../components/ListingMap';
 import PropertyBookingCard from '../components/PropertyBookingCard';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
+import HotelAIChat from '../components/HotelAIChat';
 
 const ListingDetail = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated } = useSelector(state => state.auth);
   const wishlistItems = useSelector(state => state.wishlist.items);
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,12 +29,6 @@ const ListingDetail = () => {
     rating: 5,
     comment: '',
     name: ''
-  });
-  const [bookingData, setBookingData] = useState({
-    checkIn: null,
-    checkOut: null,
-    adults: 1,
-    children: 0
   });
   const amenityIcons = {
     'WiFi': FaWifi,
@@ -46,23 +40,46 @@ const ListingDetail = () => {
     'Concierge': FaConciergeBell
   };
 
+  const fetchReviews = async (listingId) => {
+    try {
+      const response = await fetch(`/api/reviews/listing/${listingId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const formattedReviews = data.data.map(review => ({
+            id: review._id,
+            name: review.user?.firstName || 'Anonymous',
+            rating: review.rating,
+            comment: review.comment,
+            date: new Date(review.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            isVerified: review.isVerified
+          }));
+          setReviews(formattedReviews);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    }
+  };
+
   useEffect(() => {
     const fetchListing = async () => {
       setLoading(true);
       try {
         try {
-          console.log('Fetching listing from API:', id);
           const apiListing = await fetchListingByIdFromAPI(id);
-          console.log('Listing fetched from API:', apiListing);
           setListing(apiListing);
           await fetchReviews(id);
         } catch (apiError) {
           console.warn('API failed, trying mock data:', apiError.message);
           const mockListings = getMockListings();
           const foundListing = mockListings.find(l => l._id === id);
-          
           if (foundListing) {
-            console.log('Using mock listing:', foundListing);
             setListing(foundListing);
             await fetchReviews(id);
           } else {
@@ -75,40 +92,6 @@ const ListingDetail = () => {
         navigate('/');
       } finally {
         setLoading(false);
-      }
-    };
-    const fetchReviews = async (listingId) => {
-      try {
-        console.log('Fetching reviews for listing:', listingId);
-        const response = await fetch(`/api/reviews/listing/${listingId}`);
-        console.log('Review fetch response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Review data received:', data);
-          
-          if (data.success) {
-            const formattedReviews = data.data.map(review => ({
-              id: review._id,
-              name: review.user?.firstName || 'Anonymous',
-              rating: review.rating,
-              comment: review.comment,
-              date: new Date(review.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              }),
-              isVerified: review.isVerified
-            }));
-            console.log('Formatted reviews:', formattedReviews);
-            setReviews(formattedReviews);
-          }
-        } else {
-          console.log('Review fetch failed with status:', response.status);
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-        setReviews([]);
       }
     };
 
@@ -253,8 +236,9 @@ const ListingDetail = () => {
         <div className="relative mb-8">
           <div className="aspect-[16/9] lg:aspect-[16/8] overflow-hidden rounded-xl bg-gray-200">
             <img
-              src={imagesToShow[currentImageIndex] || placeholderImages[0]}
+              src={getImageUrl(imagesToShow[currentImageIndex], placeholderImages[0])}
               alt={listing.title}
+              onError={(e) => handleImageError(e, placeholderImages[0])}
               className="w-full h-full object-cover"
             />
             
@@ -298,7 +282,7 @@ const ListingDetail = () => {
             <div className="mb-6">
               <div className="flex items-start justify-between mb-2">
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {translateContent(listing.title, t, 'title')}
+                  {listing.title}
                 </h1>
                 <button
                   onClick={() => {
@@ -352,7 +336,7 @@ const ListingDetail = () => {
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">{t('content.aboutThisPlace', { defaultValue: 'About this place' })}</h2>
               <p className="text-gray-700 leading-relaxed">
-                {translateContent(listing.description, t, 'description')}
+                {listing.description}
               </p>
             </div>
 
@@ -515,6 +499,7 @@ const ListingDetail = () => {
         </div>
       </div>
 
+      <HotelAIChat listing={listing} />
       <Footer />
     </div>
   );

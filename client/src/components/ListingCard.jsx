@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaHeart, FaRegHeart, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { addToWishlist, removeFromWishlist } from '../store/wishlistSlice';
+
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 
 const ListingCard = ({ listing }) => {
   const dispatch = useDispatch();
@@ -67,8 +69,9 @@ const ListingCard = ({ listing }) => {
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-200">
           <img
-            src={imagesToShow[currentImageIndex] || placeholderImages[0]}
+            src={getImageUrl(imagesToShow[currentImageIndex], placeholderImages[0])}
             alt={listing.title}
+            onError={(e) => handleImageError(e, placeholderImages[0])}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           

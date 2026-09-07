@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 import { 
   FaCreditCard, 
   FaCheckCircle, 
@@ -218,8 +219,9 @@ const PaymentDetails = () => {
               <div className="flex items-center space-x-4">
                 {payment.booking.listing.images && payment.booking.listing.images[0] && (
                   <img 
-                    src={payment.booking.listing.images[0]} 
+                    src={getImageUrl(payment.booking.listing.images[0])} 
                     alt={payment.booking.listing.title}
+                    onError={(e) => handleImageError(e)}
                     className="w-20 h-20 rounded-lg object-cover"
                   />
                 )}

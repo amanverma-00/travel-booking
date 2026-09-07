@@ -10,7 +10,6 @@ import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import OTPVerification from './pages/auth/OTPVerification';
 import Profile from './pages/Profile';
 import ListingDetail from './pages/ListingDetail';
 import Wishlist from './pages/Wishlist';
@@ -114,7 +113,6 @@ function App() {
                   <Route path="/become-host" element={<BecomeHost />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="/verify-otp" element={<OTPVerification />} />
                   <Route path="/profile" element={
                     <ProtectedRoute>
                       <Profile />

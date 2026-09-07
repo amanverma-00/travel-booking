@@ -21,6 +21,7 @@ import enhancedReviewRoutes from './routes/enhancedReview.js';
 import notificationRoutes from './routes/notification.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import paymentRoutes from './routes/payments.js';
+import aiChatRoutes from './routes/aiChat.js';
 
 dotenv.config();
 
@@ -60,8 +61,10 @@ console.log('📁 Static file serving configured');
     await connectDB();
     console.log('✅ MongoDB connected successfully');
     
-    await redisClient.connect();
-    console.log('✅ Redis connected successfully');
+    if (redisClient) {
+      await redisClient.connect();
+      console.log('✅ Redis connected successfully');
+    }
   } catch (error) {
     console.error('❌ Database connection error:', error);
     // Don't exit the process, continue running the server
@@ -83,17 +86,21 @@ app.use('/api/enhanced-reviews', enhancedReviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/ai', aiChatRoutes);
 console.log('✅ All routes mounted successfully');
 
 app.get('/api/health', async (req, res) => {
   try {
     const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-    let redisStatus = 'disconnected';
-    try {
-      await redisClient.ping();
-      redisStatus = 'connected';
-    } catch (e) {
-      // Redis is disconnected
+    let redisStatus = 'disabled';
+    
+    if (redisClient) {
+      try {
+        await redisClient.ping();
+        redisStatus = 'connected';
+      } catch (e) {
+        redisStatus = 'disconnected';
+      }
     }
     
     res.status(200).json({

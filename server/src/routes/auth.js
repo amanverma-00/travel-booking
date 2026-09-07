@@ -8,10 +8,7 @@ import {
   getProfile,
   updateProfile,
   uploadProfileImage,
-  becomeHost,
-  sendSignupOTP,
-  verifySignupOTP,
-  resendSignupOTP
+  becomeHost
 } from '../controllers/userAuthent.js';
 import { userMiddleware, adminMiddleware } from '../middleware/authMiddleware.js';
 import { validate, validateFile, mongoIdSchema } from '../middleware/validationMiddleware.js';
@@ -20,10 +17,7 @@ import {
   loginSchema,
   createAdminSchema,
   updateProfileSchema,
-  becomeHostSchema,
-  sendSignupOTPSchema,
-  verifyOTPSchema,
-  resendOTPSchema
+  becomeHostSchema
 } from '../validations/authValidation.js';
 import multer from 'multer';
 import path from 'path';
@@ -44,11 +38,6 @@ const upload = multer({
 });
 
 const router = express.Router();
-
-// OTP-based registration routes
-router.post('/send-signup-otp', validate(sendSignupOTPSchema), sendSignupOTP);
-router.post('/verify-signup-otp', validate(verifyOTPSchema), verifySignupOTP);
-router.post('/resend-signup-otp', validate(resendOTPSchema), resendSignupOTP);
 
 // Traditional authentication routes with validation
 router.post('/register', validate(registerSchema), register);
